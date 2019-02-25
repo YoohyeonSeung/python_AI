@@ -31,7 +31,7 @@ hypothesis = tf.nn.softmax(tf.matmul(X, W) + b)
 cost = tf.reduce_mean(  tf.nn.softmax_cross_entropy_with_logits(    logits=tf.matmul(X, W)+b, labels= Y_one_hot ) )
 
 # Gradient descent algorithm
-optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.1)
 train = optimizer.minimize(cost)
 
 prediction = tf.argmax(hypothesis, 1)  # 출력중 가장 큰 것!
@@ -42,14 +42,23 @@ accurancy = tf.reduce_mean(  tf.cast( correct_prediction, tf.float32) )
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
 
-    for step in range(5001):
+    for step in range(10001):
         sess.run(train, feed_dict={X:x_train_data, Y:y_train_data})
 
         if step % 200 ==0 :
             c, a = sess.run([cost, accurancy],feed_dict={X:x_train_data, Y:y_train_data})
             print(step, "cost :{:.2f}  Accurancey : {:.2%}".format(c, a))
 
+    pred = sess.run(prediction, feed_dict={X:x_train_data})
+
+    for p, y in zip(pred, y_train_data.flatten()):          # flatten()을 통해 넓은 형태로 변형
+        print( "[{}] Prediction : {} True Y :{}".format(p==int(y), p, int(y))               )
+
+    print("======================================")
+
     pred = sess.run(prediction, feed_dict={X:x_test_data})
 
-    for p, y in zip(pred):
-        print( "[{}] Prediction : {} True Y :{}".format(p==int(y), p, int(y))               )
+    for p, y in zip(pred, y_test_data):
+        print("[{}] Prediction : {} True Y :{}".format(p == int(y), p, int(y)))
+
+print(x_train_data[0,])
